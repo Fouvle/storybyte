@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - StoryByte</title>
+    <style>
+        :root {
+            --color-1: #C5C8A6; 
+            --color-2: #DBDCA5; 
+            --color-3: #F6EAC2; 
+            --color-4: #FCF6D7; 
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(var(--color-1), var(--color-2), var(--color-3), var(--color-4));
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 600px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto 20px;
+            border: 2px solid #ccc;
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stats p {
+            font-size: 1.2em;
+            margin: 5px 0;
+        }
+
+        .btn {
+            display: block;
+            width: 80%;
+            max-width: 300px;
+            margin: 10px auto;
+            padding: 15px 30px;
+            font-size: 1em;
+            color: white;
+            background-color: #333;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #555;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            cursor: pointer;
+            display: inline-block;
+            color: #333;
+            background: #f9f9f9;
+            padding: 8px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile">
+        <h1>Your Profile</h1>
+        
+        <div class="stats">
+            <p><strong>Followers:</strong> 120</p>
+        </div>
+
+        <a href="drafts.php" class="btn">View Drafts</a>
+        <a href="published.html" class="btn">View Published Stories</a>
+        <a href="new-story.html" class="btn">Write a New Story</a>
+        <a href="dashboard.html" class="btn">Back to Dashboard</a>
+        <button class="logout-btn" id="logout">Logout</button>
+    </div>
+
+    <script>
+        // Fetch user data from the backend
+        fetch('profile.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.querySelector('.stats p').textContent = `Followers: ${data.followers}`;
+                }
+            })
+            .catch(error => console.error('Error fetching user data:', error));
+
+        // Handle logout
+        document.getElementById('logout').addEventListener('click', () => {
+            fetch('logout.php', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        window.location.href = 'login.html'; // Redirect to login page
+                    }
+                })
+                .catch(error => console.error('Error during logout:', error));
+        });
+    </script>
+</body>
+</html>

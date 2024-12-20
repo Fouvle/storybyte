@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Stories - StoryByte</title>
+    <style>
+        :root {
+            --color-1: #C5C8A6;
+            --color-2: #DBDCA5;
+            --color-3: #F6EAC2;
+            --color-4: #FCF6D7;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(var(--color-1), var(--color-2), var(--color-3), var(--color-4));
+            color: #333;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header-content {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-buttons a {
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .auth-buttons a:hover {
+            background-color: #555;
+        }
+
+        .user-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-buttons a {
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-buttons a:hover {
+            background-color: #555;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Rest of the previous CSS remains the same */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .filter-container select {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .stories-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .story-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .story-card h3 {
+            font-size: 1.5em;
+            margin: 0 0 10px 0;
+        }
+
+        .story-card p {
+            font-size: 1em;
+            color: #555;
+            margin: 0 0 10px 0;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn, .like-btn, .comment-btn {
+            padding: 10px 15px;
+            font-size: 1em;
+            color: white;
+            background-color: #333;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn:hover, .like-btn:hover, .comment-btn:hover {
+            background-color: #555;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+        }
+
+        footer .btn {
+            padding: 15px 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="auth-buttons" id="authButtons">
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+        </div>
+        <div class="header-content">
+            <h1>Explore Stories</h1>
+            <p>Discover microfiction from a variety of authors. Start your reading adventure!</p>
+        </div>
+        <div class="user-buttons hidden" id="userButtons">
+            <a href="dashboard.html">Back to Dashboard</a>
+            <a href="profile.html">Profile</a>
+        </div>
+    </header>
+
+    <div class="filter-container">
+        <select id="filter-genre">
+            <option value="">Select Genre</option>
+            <option value="1">Fiction</option>
+            <option value="4">Drama</option>
+            <option value="2-fi">Sci-Fi</option>
+            <option value="3">Romance</option>
+        </select>
+        <select id="filter-date">
+            <option value="">Date Published</option>
+            <option value="published_date ASC">Oldest First</option>
+            <option value="published_date DESC">Newest First</option>
+        </select>
+        <select id="filter-popularity">
+            <option value="">Filter by Popularity</option>
+            <option value="likes DESC">Most Liked</option>
+        </select>
+    </div>
+
+    <div class="stories-container" id="stories-container">
+        <!-- Story cards will dynamically appear here -->
+    </div>
+
+    <footer>
+        <a href="dashboard.html" class="btn hidden" id="footerDashboardBtn">Back to Dashboard</a>
+    </footer>
+
+    <script>
+        // Fetch stories from the backend
+        async function fetchStories() {
+            const genre = document.getElementById('filter-genre').value;
+            const order = document.getElementById('filter-date').value || 'published_date DESC';
+
+            const url = `main-landing.php?action=fetch&genre_id=${encodeURIComponent(genre)}&order=${encodeURIComponent(order)}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch stories');
+                const stories = await response.json();
+                console.log('sories: ',stories);
+                renderStories(stories);
+            } catch (error) {
+                console.error('Error fetching stories:', error);
+            }
+        }
+
+        // Render stories dynamically
+        function renderStories(stories) {
+            const container = document.getElementById('stories-container');
+            container.innerHTML = ''; // Clear existing content
+
+            stories.forEach(story => {
+                const storyCard = document.createElement('div');
+                storyCard.classList.add('story-card');
+                storyCard.innerHTML = `
+                    <h3>${story.title}</h3>
+                    <p><strong>Genre:</strong> ${story.genre_name} <strong>Published:</strong> ${story.published_date}</p>
+                    <p>${story.content}</p>
+                    <div class="actions">
+                        <button class="like-btn" onclick="likeStory(${story.id})">Like (${story.likes})</button>
+                        <button class="comment-btn" onclick="toggleCommentBox(${story.id})">Comment</button>
+                    </div>
+                    <div class="comment-box" id="comment-box-${story.id}" style="display: none;">
+                        <input type="text" class="comment-input" id="comment-input-${story.id}" placeholder="Write a comment...">
+                        <button class="btn" onclick="submitComment(${story.id})">Submit Comment</button>
+                        <ul class="comment-list" id="comment-list-${story.id}"></ul>
+                    </div>
+                `;
+                container.appendChild(storyCard);
+            });
+        }
+
+        // Like a story
+        async function likeStory(storyId) {
+            try {
+                const response = await fetch('main-landing.php?action=like', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `storyId=${storyId}`
+                });
+                const result = await response.json();
+                if (result.success) fetchStories();
+            } catch (error) {
+                console.error('Error liking story:', error);
+            }
+        }
+
+        // Initial setup
+        document.getElementById('filter-genre').addEventListener('change', fetchStories);
+        document.getElementById('filter-date').addEventListener('change', fetchStories);
+        document.getElementById('filter-popularity').addEventListener('change', fetchStories);
+
+        // Fetch and render stories on page load
+        fetchStories();
+    </script>
+</body>
+</html>

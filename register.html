@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - StoryByte</title>
+    <style>
+        :root {
+            --color-1: #C5C8A6; /* Top color */
+            --color-2: #DBDCA5; /* Second color */
+            --color-3: #F6EAC2; /* Third color */
+            --color-4: #FCF6D7; /* Bottom color */
+            --error-color: #FF6B6B; /* Error message background */
+            --text-color: #333; /* General text color */
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(var(--color-1), var(--color-2), var(--color-3), var(--color-4));
+            color: var(--text-color);
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+
+        .alert {
+            padding: 15px;
+            background-color: var(--error-color);
+            color: white;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 1em;
+            background-color: var(--text-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Register As User</h1>
+
+        <!-- Error message will be shown here by JavaScript -->
+        <div id="error-message" class="alert" style="display: none;"></div>
+
+        <form id="register-form">
+            <input type="text" name="full_name" id="full_name" placeholder="Full Name" required>
+            <input type="text" name="username" id="username" placeholder="Username" required>
+            <input type="email" name="email" id="email" placeholder="Email Address" required>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+            <button type="submit">Register</button>
+        </form>
+
+        <a href="login.html">Already have an account? Login here</a>
+    </div>
+
+    <script>
+        // Function to handle form submission
+        document.getElementById('register-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Prepare the form data
+            const formData = new FormData(this);
+
+            // Make the POST request to the PHP file
+            fetch('registerbend_user.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Check if there are errors
+                if (data.error) {
+                    document.getElementById('error-message').innerText = data.error;
+                    document.getElementById('error-message').style.display = 'block';
+                } else {
+                    // Redirect to the profile page
+                    window.location.href = 'profile.html';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
